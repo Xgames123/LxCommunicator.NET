@@ -49,6 +49,11 @@ namespace Loxone.Communicator {
 		public event EventHandler<ConnectionAuthenticatedEventArgs> OnAuthenticated;
 
 		/// <summary>
+		/// Event, fired when the connection is closed
+		/// </summary>
+		public event EventHandler OnDisconnect;
+
+		/// <summary>
 		/// The cancellationTokenSource used for cancelling the listener and receiving messages
 		/// </summary>
 		private readonly CancellationTokenSource TokenSource = new CancellationTokenSource();
@@ -140,7 +145,10 @@ namespace Loxone.Communicator {
 					}
 					await Task.Delay(10);
 				}
-			}, TokenSource.Token);
+				
+			}, TokenSource.Token).ContinueWith((task) => {
+				OnDisconnect?.Invoke(this, EventArgs.Empty);
+			});
 		}
 
 		/// <summary>
